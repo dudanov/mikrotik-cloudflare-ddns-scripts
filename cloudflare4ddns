@@ -1,0 +1,60 @@
+# Update Cloudflare DNS IPv4 address script
+# RouterOS version >= 6.44 is required
+
+# ** CONFIGURE SECTION **
+
+# WAN IPv4 interface
+:local wanif    "wan1"
+
+# Cloudflare section
+:local email    "e-mail"
+:local key      "token"
+:local zoneId   "zoneId"
+:local hostId   "hostId"
+
+# Domain hostname
+:local hostName "host.yourdomain.com"
+
+# ** END OF CONFIGURE SECTION **
+
+# Get WAN interface IPv4 address
+:global ip4wan
+:local ip4new [/ip address get [/ip address find interface=$wanif] address]
+:set ip4new [:pick [:tostr $ip4new] 0 [:find [:tostr $ip4new] "/"]]
+
+:if ([:len $ip4new] = 0) do={
+  :log error "[Cloudflare DDNS] Could not get IPv4 for interface $wanif"
+  :error "[Cloudflare DDNS] Could not get IPv4 for interface $wanif"
+}
+
+:if ($ip4new != $ip4wan) do={
+
+  :log info "[Cloudflare DDNS] WAN IPv4 address for interface $wanif has been changed to $ip4new."
+
+  :local url    "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records/$hostId"
+  :local header "X-Auth-Email: $email, X-Auth-Key: $key, content-type: application/json"
+  :local data   "{\"type\":\"A\",\"name\":\"$hostName\",\"content\":\"$ip4new\",\"ttl\":120}"
+
+#  :log info "[Cloudflare DDNS] URL: $url"
+#  :log info "[Cloudflare DDNS] HEADER: $header"
+#  :log info "[Cloudflare DDNS] DATA: $data"
+  :log info "[Cloudflare DDNS] Updating host $hostName address."
+
+  :local jsonAnswer [/tool fetch mode=https http-method=put http-header-field=$header http-data=$data url=$url as-value output=user]
+
+  :if ([:len $jsonAnswer] > 0) do={
+
+    /system script run "JParseFunctions"; global JSONLoads; global JSONUnload
+    :local result ([$JSONLoads ($jsonAnswer->"data")]->"success")
+    $JSONUnload
+
+    :if ($result = true) do={
+      :log info "[Cloudflare DDNS] Successfully updated IPv4 address to $ip4new."
+      :set ip4wan $ip4new
+    } else={
+      :log error "[Cloudflare DDNS] Error while updating IPv4 address."
+    }
+  } else={
+    :log error "[Cloudflare DDNS] No answer from Cloudflare API."
+  }
+}
