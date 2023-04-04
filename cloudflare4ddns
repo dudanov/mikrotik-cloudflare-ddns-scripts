@@ -33,7 +33,7 @@
 
   :local url    "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records/$hostId"
   :local header "X-Auth-Email: $email, X-Auth-Key: $key, content-type: application/json"
-  :local data   "{\"type\":\"A\",\"name\":\"$hostName\",\"content\":\"$ip4new\",\"ttl\":120}"
+  :local data   "{\"type\":\"A\",\"name\":\"$hostName\",\"content\":\"$ip4new\",\"proxied\":true,\"ttl\":120}"
 
 #  :log info "[Cloudflare DDNS] URL: $url"
 #  :log info "[Cloudflare DDNS] HEADER: $header"
