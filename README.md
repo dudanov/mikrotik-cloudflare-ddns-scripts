@@ -14,7 +14,7 @@ Each script (IPv4 and IPv6) has a configuration area. Just insert your values.
 
 First of all you need your `Cloudflare API` key. Just go to the `Cloudflare` [site](https://www.cloudflare.com/) `My Profile -> API Keys section -> Global API Key -> View`. Follow the instructions. Now you have your `API` key. Keep it safe.
 
-The service does not allow easy retrieval of required DNS record identifiers. This is only possible through a REST API method `List DNS Records`. This method is described [here](https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-list-dns-records). Using any REST client (I use [Advanced REST client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo) for `Chrome Browser`), sending a request, you will receive the `JSON` answer with necessary zone and host IDs.
+The service does not allow easy retrieval of required Zone and DNS record identifiers. This is only possible through a REST API methods [List Zones](https://developers.cloudflare.com/api/operations/zones-get) and [List DNS Records](https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-list-dns-records). Using any REST client (I use [Advanced REST client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo) for `Chrome Browser`), sending a request, you will receive the `JSON` answer with necessary Zone and DNS Record IDs.
 
 Insert all variables in scripts and install in your `Mikrotik` device.
 
