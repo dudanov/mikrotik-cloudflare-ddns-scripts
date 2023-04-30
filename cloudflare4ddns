@@ -17,6 +17,9 @@
 
 # ** END OF CONFIGURE SECTION **
 
+:log info "[Cloudflare DDNS] Start. domain is $hostName."
+
+
 # Get WAN interface IPv4 address
 :global ip4wan
 :local ip4new [/ip address get [/ip address find interface=$wanif] address]
@@ -29,7 +32,10 @@
 
 :if ($ip4new != $ip4wan) do={
 
-  :log info "[Cloudflare DDNS] WAN IPv4 address for interface $wanif has been changed to $ip4new."
+  :log info "[Cloudflare DDNS] WAN IPv4 address for interface $wanif has been changed (from $ip4wan) to $ip4new."
+
+  # If the script is executed in the PPP Profile, it needs to wait a few seconds before making the HTTP request
+  :delay 4000ms;
 
   :local url    "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records/$hostId"
   :local header "X-Auth-Email: $email, X-Auth-Key: $key, content-type: application/json"
@@ -41,6 +47,8 @@
   :log info "[Cloudflare DDNS] Updating host $hostName address."
 
   :local jsonAnswer [/tool fetch mode=https http-method=put http-header-field=$header http-data=$data url=$url as-value output=user]
+  :local sJsonAnswer ($jsonAnswer->"data")
+  :log info "[Cloudflare DDNS] jsonAnswer: $sJsonAnswer"
 
   :if ([:len $jsonAnswer] > 0) do={
 
